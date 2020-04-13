@@ -29,7 +29,7 @@
 #----------------------------------------------------------------------------------------------------------------
 #                                                                                                       Variables
 #----------------------------------------------------------------------------------------------------------------
-COS=$(echo "displayName zimbraCreateTimestamp zimbraId members")
+COS=$(echo "displayName zimbraCreateTimestamp zimbraId zimbraMailStatus members")
 PATH=/tmp/ExportListDistr
 
 
