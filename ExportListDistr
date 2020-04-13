@@ -30,20 +30,12 @@
 #                                                                                                       Variables
 #----------------------------------------------------------------------------------------------------------------
 COS=$(echo "displayName zimbraCreateTimestamp zimbraId zimbraMailStatus members")
-PATH=/tmp/ExportListDistr
 
 
 #----------------------------------------------------------------------------------------------------------------
 #                                                                                                       Funciones
 #----------------------------------------------------------------------------------------------------------------
-# Comprobar carpeta exite
-if [ -d "$PATH" ]; then
-  echo "Installing config files in ${PATH}..."
-else
-  mkdir $PATH
-fi
-
 for i in `zmprov gadl` ; do 
  RESULTADO=`zmprov gdl $i  $COS | grep -v "#" | awk '{print $2";"}'|tr -d '\n' | head -c-2`; 
- echo $i ";" $RESULTADO >> $PATH/ExportListDistr.csv
+ echo $i ";" $RESULTADO >> /opt/zimbra/scripts/ExportListDistr/ExportListDistr.csv
 done 
