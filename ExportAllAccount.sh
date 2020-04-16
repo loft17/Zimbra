@@ -4,7 +4,7 @@
 #                                                                                                            Info
 #----------------------------------------------------------------------------------------------------------------
 # name: ExportAllUserZimbra
-# version: 1.1
+# version: 1.1a
 # autor: joseRomera <web@joseromera.net>
 # web: http://www.joseromera.net
 #----------------------------------------------------------------------------------------------------------------
@@ -25,6 +25,7 @@ LISTADO="ListAccount.csv"
 
 # Variables Comandos
 ZMPROV="/opt/zimbra/bin/zmprov"
+ZMMAILBOX="/opt/zimbra/bin/zmmailbox"
 
 # Otros
 COS=$(echo "displayName givenName sn uid")
@@ -44,9 +45,9 @@ echo "email;displayName;givenName;sn;uid;espacio" >> $PATHTMP/$LISTADO
 # loop for each CUENTA
 for CUENTA in ${CUENTAS}; do
   RESULTADO=`$ZMPROV -l ga ${CUENTA} $COS | grep -v "#" | awk '{print $0";"}' | sed 's/givenName: //'  | sed 's/sn: //'   | sed 's/displayName: //'   | sed 's/uid: //'  |tr -d '\n' | head -c-2`;
-  mb_size=`zmmailbox -z -m ${CUENTA} gms`;
-  mb_size=`echo ${mb_size} | tr . ,`;
-  echo "$CUENTA;$RESULTADO;$mb_size" >> $PATHTMP/$LISTADO
+  MB_SIZE=`$ZMMAILBOX -z -m ${CUENTA} gms`;
+  MB_SIZE=`echo ${MB_SIZE} | tr . ,`;
+  echo "$CUENTA;$RESULTADO;$MB_SIZE" >> $PATHTMP/$LISTADO
 done
 
 sed -i 's/KB/;1000/'  $PATHTMP/$LISTADO
