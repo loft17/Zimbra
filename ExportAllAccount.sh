@@ -4,7 +4,7 @@
 #                                                                                                            Info
 #----------------------------------------------------------------------------------------------------------------
 # name: ExportAllUserZimbra
-# version: 1.0
+# version: 1.1
 # autor: joseRomera <web@joseromera.net>
 # web: http://www.joseromera.net
 #----------------------------------------------------------------------------------------------------------------
@@ -21,16 +21,13 @@ DATE=$(date +"%Y%m%d")
 PATHTMP="/opt/zimbra/scripts"
 
 # Variables Ficheros
-LISTTMP="ListUsers.tmp"
 LISTADO="ListAccount.csv"
 
 # Variables Comandos
 ZMPROV="/opt/zimbra/bin/zmprov"
 
 # Otros
-COS=$(echo "displayName givenName sn uid userPassword")
-#COS=$(echo "givenName sn uid userPassword")
-
+COS=$(echo "displayName givenName sn uid")
 
 #----------------------------------------------------------------------------------------------------------------
 #                                                                                                       Funciones
@@ -42,11 +39,17 @@ CUENTAS=`zmprov -l gaa | egrep -v 'admin|wiki|galsync|spam|ham|virus'`;
 cat /dev/null > $PATHTMP/$LISTADO
 
 # Agregamos los campos
-echo "email;displayName;givenName;sn;uid;userPassword" >> $PATHTMP/$LISTADO
+echo "email;displayName;givenName;sn;uid;espacio" >> $PATHTMP/$LISTADO
 
 # loop for each CUENTA
 for CUENTA in ${CUENTAS}; do
-  RESULTADO=`$ZMPROV -l ga ${CUENTA} $COS | grep -v "#" | awk '{print $0";"}' | sed 's/givenName: //'  | sed 's/sn: //'   | sed 's/displayName: //'   | sed 's/uid: //'   | sed 's/userPassword: //'  |tr -d '\n' | head -c-2`;
-  echo "$CUENTA;$RESULTADO" >> $PATHTMP/$LISTADO
+  RESULTADO=`$ZMPROV -l ga ${CUENTA} $COS | grep -v "#" | awk '{print $0";"}' | sed 's/givenName: //'  | sed 's/sn: //'   | sed 's/displayName: //'   | sed 's/uid: //'  |tr -d '\n' | head -c-2`;
+  mb_size=`zmmailbox -z -m ${CUENTA} gms`;
+  mb_size=`echo ${mb_size} | tr . ,`;
+  echo "$CUENTA;$RESULTADO;$mb_size" >> $PATHTMP/$LISTADO
 done
 
+sed -i 's/KB/;1000/'  $PATHTMP/$LISTADO
+sed -i 's/MB/;1000000/'  $PATHTMP/$LISTADO
+sed -i 's/GB/;1000000000/'  $PATHTMP/$LISTADO
+sed -i 's/B/;1/'  $PATHTMP/$LISTADO
