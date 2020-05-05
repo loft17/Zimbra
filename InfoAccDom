@@ -1,0 +1,97 @@
+  
+#!/bin/bash
+
+#----------------------------------------------------------------------------------------------------------------
+#                                                                                                            Info
+#----------------------------------------------------------------------------------------------------------------
+# name: InfoAccDom
+#
+# Con este script sacaremos en dos csv la informacion de dominios y cuentas de 
+# todos los servidores zimbra que administremos
+#
+# version: 0.9a
+# autor: joseRomera <web@joseromera.net>
+# web: http://www.joseromera.net
+#----------------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------------------------------
+#                                                                                                       Variables
+#----------------------------------------------------------------------------------------------------------------
+
+# Para saber el tiempo que tarda en ejecutar
+STARTTIME=$(date +%s)
+
+# Carpetas
+PATH_TMP="/tmp"
+
+# Listados
+LISTACCTMP="/tmp/ListadoCuentas.tmp"
+LISTACC="/tmp/ListadoCuentas.csv"
+LISTDOM="/tmp/ListadoDominios.csv"
+
+# Logs
+LOGEJECUCION="/tmp/DomainAccount.log"
+
+#----------------------------------------------------------------------------------------------------------------
+#                                                                                                       Funciones
+#----------------------------------------------------------------------------------------------------------------
+
+# Limpiamos ficheros ficheros/logs
+cat /dev/null > $LOGEJECUCION
+cat /dev/null > $LISTDOM
+cat /dev/null > $LISTACC
+echo "Eliminados los ficheros/logs" >> $LOGEJECUCION
+
+# Comprobamos que ldap esta corriendo en la maquina
+LDAPEXEV=$(ssh root@$SERVIDORIP -p $SERVIDORPORT "su - zimbra -c "'"zmcontrol status | grep ldap | cut -c26-32  "'"")
+echo "Comprobamos si $SERVIDORIP tiene ldap en ejecucion" >> $LOGEJECUCION
+
+if [ $LDAPEXEV == "Running" ]
+then
+ # Sacamos el fqdn
+ HOSTNAME=$(ssh root@$SERVIDORIP -p $SERVIDORPORT "hostname -A")
+ echo "Start $HOSTNAME" >> $LOGEJECUCION
+ 
+ # Sacamos los dominios configurados en el servidor
+ DOMAINS=$(ssh root@$SERVIDORIP -p $SERVIDORPORT "su - zimbra -c "'"zmprov gad"'"")
+ echo "Sacados los dominios de $HOSTNAME" >> $LOGEJECUCION
+ 
+ # loop for each DOMINIO
+ for DOMAIN in ${DOMAINS}; do
+  echo "$SERVIDORIP;$DOMAIN" >> $LISTDOM
+ done
+ echo "Loop de cada dominio en $HOSTNAME" >> $LOGEJECUCION
+
+ # Sacamos las cuentas del servidor
+ ACCOUNTS=$(ssh root@$SERVIDORIP -p $SERVIDORPORT "su - zimbra -c "'"zmprov -l gaa | egrep -v "'"admin"'" | egrep -v "'"wiki"'" | egrep -v "'"galsync"'" | egrep -v "'"spam"'" | egrep -v "'"ham"'" | egrep -v "'"virus"'" "'"")
+ echo "Sacadas las cuentas de $HOSTNAME" >> $LOGEJECUCION
+
+ 
+ # loop for each CUENTA
+ cat /dev/null > $LISTACCTMP
+ for ACCOUNT in ${ACCOUNTS}; do
+  ACCOUNT_INFO=$(ssh root@$SERVIDORIP -p $SERVIDORPORT "su - zimbra -c "'"zmprov -l ga '${ACCOUNT}' displayName "'"")
+  echo $ACCOUNT_INFO >> $LISTACCTMP
+ done
+ echo "Sacada la info de las cuentas $HOSTNAME" >> $LOGEJECUCION
+
+ # Limpiamos la lista temporal
+ sed -i 's/# name //'  $LISTACCTMP
+ sed -i 's/ displayName: /;/'  $LISTACCTMP
+ echo "Limpiada la lista temporal" >> $LOGEJECUCION
+
+ # Construimos el fichero con las cuentas
+ cat $LISTACCTMP | while read LINEA1; do
+  CAMPO1=$(echo $LINEA | cut -d ";" -f 1)
+  CAMPO2=$(echo $LINEA | cut -d ";" -f 2)
+  echo "$HOSTNAME,$SERVIDORIP,$CAMPO1,$CAMPO2" >> $LISTACC
+ done
+ echo "Añadidas las cuentas al fichero final de $HOSTNAME" >> $LOGEJECUCION
+
+else
+ echo "El Servidor $SERVIDORIP no tiene ldap corriendo" >> $LOGEJECUCION
+fi
+
+ENDTIME=$(date +%s)
+echo "It takes $($ENDTIME - $STARTTIME) seconds to complete this task..."
+echo "done"
