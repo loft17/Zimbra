@@ -84,8 +84,10 @@ then
  cat $LISTACCTMP | while read LINEA1; do
   CAMPO1=$(echo $LINEA | cut -d ";" -f 1)
   CAMPO2=$(echo $LINEA | cut -d ";" -f 2)
-  echo "$HOSTNAME,$SERVIDORIP,$CAMPO1,$CAMPO2" >> $LISTACC
+   echo "$HOSTNAME;$SERVIDORIP;$CAMPOB1;$CAMPOB2" >> $LISTACC
  done
+ # Limpiamos un " ,"
+ sed -i 's/ ;/;/'  >> $LISTACC
  echo "Añadidas las cuentas al fichero final de $HOSTNAME" >> $LOGEJECUCION
 
 else
