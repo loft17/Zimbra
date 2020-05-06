@@ -49,5 +49,5 @@ echo "email;displayName;zimbraCreateTimestamp;zimbraId;zimbraMailStatus;members"
 for EMAIL in `zmprov gadl` ; do
  RESULTADO=`zmprov gdl $EMAIL  $COS | grep -v "#" | awk '{print $2}' | awk '!/^$/' | awk '{print $1";"}' |tr -d '\n' | head -c-2`
  ALIASMEM=`zmprov gdl $EMAIL | awk -F "zimbraMailForwardingAddress: " '{print $2}' | grep . | awk 'ORS=";"'`
- echo $EMAIL";" $RESULTADO";" $ALIASMEM >> $FOLDER_EXPORT/$LIST_EXPORT
+ echo "$EMAIL;$RESULTADO;$ALIASMEM" >> $FOLDER_EXPORT/$LIST_EXPORT
 done
