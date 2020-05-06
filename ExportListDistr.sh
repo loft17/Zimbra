@@ -51,6 +51,3 @@ for EMAIL in `zmprov gadl` ; do
  ALIASMEM=`zmprov gdl $EMAIL | awk -F "zimbraMailForwardingAddress: " '{print $2}' | grep . | awk 'ORS=";"'`
  echo $EMAIL";" $RESULTADO";" $ALIASMEM >> $FOLDER_EXPORT/$LIST_EXPORT
 done
-
-# Limpiamos un "; "
-sed -i 's/; //' $FOLDER_EXPORT/$LIST_EXPORT
