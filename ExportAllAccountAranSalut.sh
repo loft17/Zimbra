@@ -4,7 +4,7 @@
 #                                                                                                            Info
 #----------------------------------------------------------------------------------------------------------------
 # name: ExportAllUserZimbra
-# version: 0.9a
+# version: 1.0
 # autor: joseRomera <web@joseromera.net>
 # web: http://www.joseromera.net
 #----------------------------------------------------------------------------------------------------------------
@@ -28,8 +28,10 @@ COS=$(echo "displayName zimbraAccountStatus zimbraLastLogonTimestamp zimbraCreat
 # Limpiamos listado
 cat /dev/null > $FOLDER/$LISTADO
 
+;;087bf9be-2c81-4f5f-bb8a-170b21714ca2;20200417063252.545Z;;378,45 MB
+
 # Agregamos los campos
-echo "email;displayName;givenName;sn;uid;espacio" >> $FOLDER/$LISTADO
+echo "email;displayName;Status;COSId;Created;description;Size" >> $FOLDER/$LISTADO
 
 # Conseguimos todas las cuentas
 CUENTAS=`zmprov -l gaa | egrep -v 'admin|wiki|galsync|spam|ham|virus'`;
