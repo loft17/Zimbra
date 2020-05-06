@@ -4,7 +4,7 @@
 #                                                                                                            Info
 #----------------------------------------------------------------------------------------------------------------
 # name: ExportListDistr
-# version: 1.0
+# version: 1.1
 # autor: joseRomera <web@joseromera.net>
 # web: http://www.joseromera.net
 # Copyright (C) 2020
@@ -31,11 +31,23 @@
 #----------------------------------------------------------------------------------------------------------------
 COS=$(echo "displayName zimbraCreateTimestamp zimbraId zimbraMailStatus members")
 
+FOLDER_EXPORT="/tmp/Zimbra"
+LIST_EXPORT="ExportListDistr.csv"
+
+
 
 #----------------------------------------------------------------------------------------------------------------
 #                                                                                                       Funciones
 #----------------------------------------------------------------------------------------------------------------
-for i in `zmprov gadl` ; do 
- RESULTADO=`zmprov gdl $i  $COS | grep -v "#" | awk '{print $2";"}'|tr -d '\n' | head -c-2`; 
- echo $i ";" $RESULTADO >> /opt/zimbra/scripts/ExportListDistr/ExportListDistr.csv
-done 
+
+# Vaciamos los ficheros:
+cat /dev/null > $FOLDER_EXPORT/$LIST_EXPORT
+
+# Construimos la esctructura del csv
+echo "email;displayName;zimbraCreateTimestamp;zimbraId;zimbraMailStatus;members" >> $FOLDER_EXPORT/$LIST_EXPORT
+
+for I in `zmprov gadl` ; do
+ RESULTADO=`zmprov gdl $I  $COS | grep -v "#" | awk '{print $2";"}'|tr -d '\n' | head -c-2`;
+ echo $I";" $RESULTADO >> $FOLDER_EXPORT/$LIST_EXPORT
+done
+
