@@ -4,7 +4,7 @@
 #                                                                                                            Info
 #----------------------------------------------------------------------------------------------------------------
 # name: ExportAllUserZimbraAranSalut
-# version: 1.5
+# version: 1.5.1
 # autor: joseRomera <web@joseromera.net>
 # web: http://www.joseromera.net
 #----------------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ FOLDER="/tmp/Zimbra"
 # Variables Ficheros
 LISTADO="ListAccount.csv"
 # Otros
-COS=$(echo "displayName zimbraAccountStatus zimbraLastLogonTimestamp zimbraCreateTimestamp zimbraCOSId")
+COS=$(echo "displayName zimbraAccountStatus zimbraLastLogonTimestamp zimbraCreateTimestamp")
 
 
 #----------------------------------------------------------------------------------------------------------------
@@ -40,6 +40,7 @@ for EMAIL in ${CUENTAS}; do
   # Sacamos la informacion de la cuenta
   RESULTADO=`zmprov -l ga $EMAIL $COS | grep -v "#" | awk '!/^$/' | awk -F": " '{print $2";"}' | tr -d '\n' | head -c-1`
   DESCRIPTION=`zmprov -l ga $EMAIL description | grep -v "#" | awk '!/^$/' | awk -F": " '{print $2";"}' | tr -d '\n' | head -c-1`
+  COSID=`zmprov -l ga $EMAIL zimbraCOSId | grep -v "#" | awk '!/^$/' | awk -F": " '{print $2";"}' | tr -d '\n' | head -c-1`
   # Sacamos el tamaño del buzon
   MB_SIZE=`zmmailbox -z -m ${EMAIL} gms | tr . ,`
   # Averiguamos si tiene alias la cuenta
@@ -48,9 +49,9 @@ for EMAIL in ${CUENTAS}; do
   if [[ $RESULTADO_ALIAS == "zimbraMailAlias" ]]
   then
     MEMALIAS=`zmprov -l ga $EMAIL zimbraMailAlias | grep -v "#" | awk -F "zimbraMailAlias: " '{print $2}' | grep . | awk 'ORS=";"' | head -c-1`
-        echo "$EMAIL;$RESULTADO;$DESCRIPTION;$MB_SIZE;$MEMALIAS" >> $FOLDER/$LISTADO
+        echo "$EMAIL;$RESULTADO;$DESCRIPTION;$COSID;$MB_SIZE;$MEMALIAS" >> $FOLDER/$LISTADO
   else
-    echo "$EMAIL;$RESULTADO;$DESCRIPTION;$MB_SIZE" >> $FOLDER/$LISTADO
+    echo "$EMAIL;$RESULTADO;$DESCRIPTION;$COSID;$MB_SIZE" >> $FOLDER/$LISTADO
   fi
 done
 
