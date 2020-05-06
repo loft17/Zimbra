@@ -4,7 +4,7 @@
 #                                                                                                            Info
 #----------------------------------------------------------------------------------------------------------------
 # name: ExportAllResources
-# version: 1.0
+# version: 1.1
 # autor: joseRomera <web@joseromera.net>
 # web: http://www.joseromera.net
 # Copyright (C) 2020
@@ -36,7 +36,7 @@ FOLDER="/tmp/Zimbra"
 FILETMP="ListRecursos.tmp"
 FILELST="ListRecursos.csv"
 # Zimbra
-COS=$(echo "displayName zimbraAccountStatus description")
+COS_INFO=$(echo "displayName zimbraAccountStatus")
 
 
 
@@ -52,9 +52,12 @@ rm -f $FOLDER/$FILELST
 zmprov gacr >> $FOLDER/$FILETMP
 
 # Generamos la estructura del fichero
-echo "email;description;displayName;zimbraAccountStatus" >> $FOLDER/$FILETMP
+echo "email;displayName;zimbraAccountStatus;Description;ContactoEmail;ContactoNombre" >> $FOLDER/$FILELST
 
 cat $FOLDER/$FILETMP | while read EMAIL; do
-    RESULTADO=` zmprov gcr $EMAIL $COS | grep -v "#" | awk '!/^$/' | awk '{print $2";"}' |tr -d '\n' `;
-    echo "$EMAIL;$RESULTADO" >> $FOLDER/$FILELST
+    DATA_INFO=`zmprov gcr $EMAIL displayName zimbraAccountStatus | grep -v "#" | awk '!/^$/' | awk '{print $2";"}' |tr -d '\n' `;
+    DATA_DESC=`zmprov gcr $EMAIL description | grep -v "#"  | awk '{print $2";"}' |tr -d '\n' | sed 's/;;/;/'`
+    DATA_CRCE=`zmprov gcr $EMAIL zimbraCalResContactEmail | grep -v "#"  | awk '{print $2";"}' |tr -d '\n' | sed 's/;;/;/'`
+    DATA_CRCN=`zmprov gcr $EMAIL zimbraCalResContactName | grep -v "#"  | awk '{print $2";"}' |tr -d '\n' | sed 's/;;/;/'`
+    echo "$EMAIL;$DATA_INFO$DATA_DESC$DATA_CRCE$DATA_CRCE" >> $FOLDER/$FILELST
 done
