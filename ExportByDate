@@ -1,0 +1,10 @@
+#setup colors
+cyan='\e[0;36m'
+green='\033[92m'
+NoColor='\033[0m'
+
+for EMAIL in `zmprov -l gaa `; do
+    echo -ne $cyan"$EMAIL: \t";
+    zmmailbox -z -m $EMAIL getRestURL --startTime 2023/1/1 -u https://localhost:7071 "//?fmt=tgz" > $EMAIL.tgz2 ;
+    echo -e "$green""done" "$NoColor";
+done
